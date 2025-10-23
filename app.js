@@ -1,9 +1,7 @@
 console.log("[app] starting…");
 
 // ===== CONFIG =====
-const META_URL =
-  "https://api.allorigins.win/raw?url=" +
-  encodeURIComponent("https://radar.bmkg.go.id/sidarma-nowcast/imageStatus_Jakarta.json?id=123");
+const META_URL  = "https://radar-soetta.meteo-vei.workers.dev/";
 const IMG_BASE  = "https://radar.bmkg.go.id/sidarma-nowcast/";
 
 // From your station metadata image:
