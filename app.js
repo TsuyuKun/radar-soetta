@@ -1,7 +1,7 @@
 console.log("[app] starting…");
 
 // ===== CONFIG =====
-const META_URL  = "https://radar-soetta.meteo-vei.workers.dev/";
+const META_URL = "https://radar-soetta.meteo-vei.workers.dev/";
 const IMG_BASE  = "https://radar.bmkg.go.id/sidarma-nowcast/";
 
 // From your station metadata image:
@@ -26,6 +26,7 @@ let timer = null;
 let map;
 try {
   map = L.map("map", { center: MAP_CENTER, zoom: MAP_ZOOM, minZoom: 4, maxZoom: 12 });
+  map.zoomControl.setPosition("topright");
   console.log("[map] created");
 } catch (e) {
   console.error("[map] failed to create:", e);
@@ -52,6 +53,7 @@ document.getElementById("opacity").addEventListener("input", (e) => {
 const btnPrev = document.getElementById("btnPrev");
 const btnPlay = document.getElementById("btnPlay");
 const btnNext = document.getElementById("btnNext");
+const timeChip = document.getElementById("time-chip");
 btnPrev.addEventListener("click", () => { stop(); prevFrame(); });
 btnNext.addEventListener("click", () => { stop(); nextFrame(); });
 btnPlay.addEventListener("click", () => { if (timer) stop(); else play(); });
@@ -92,13 +94,16 @@ async function loadMetadata() {
 
 function showFrame(i) {
   frameIndex = (i + frames.length) % frames.length;
-  const url = frames[frameIndex].url; 
-  console.log("[overlay] setUrl", url);
+  const url = frames[frameIndex].url;
   overlay.setUrl(url);
 
-  const ts = document.getElementById("timestamp");
-  ts.textContent = `UTC: ${frames[frameIndex].timeUTC} | Local: ${frames[frameIndex].timeLocal}`;
+  // Update top-left badge time
+  const badgeTime = document.getElementById("badge-time");
+  if (badgeTime) {
+    badgeTime.textContent = `${frames[frameIndex].timeLocal} | ${frames[frameIndex].timeUTC}`;
+  }
 }
+
 function nextFrame() { showFrame(frameIndex + 1); }
 function prevFrame() { showFrame(frameIndex - 1); }
 function play() { btnPlay.textContent = "⏸"; timer = setInterval(nextFrame, FRAME_INTERVAL); }
@@ -107,4 +112,7 @@ function stop() { btnPlay.textContent = "▶"; clearInterval(timer); timer = nul
 loadMetadata().catch(err => {
   console.error("[fetch] metadata error:", err);
   document.getElementById("timestamp").textContent = "Failed to load metadata.";
+  if (document.getElementById("badge-time")) {
+    document.getElementById("badge-time").textContent = "No data";
+  }  
 });
