@@ -214,3 +214,41 @@ html, body {
   }
 }
 
+/* Product selector chip (posisi di kanan, di bawah opacity) */
+#product-chip {
+  position: absolute;
+  top: 60px;         /* tepat di bawah opacity chip */
+  right: 16px;
+  z-index: 999;
+  padding: 6px 10px;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px;
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  background: rgba(23,27,33,.7);
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: 0 6px 16px rgba(0,0,0,.25);
+}
+#product-chip select { font: 600 12px system-ui, sans-serif; }
+
+/* Notice chip (muncul saat forecast) – kiri atas, di bawah badge */
+#notice-chip {
+  position: absolute;
+  left: 16px;
+  top: 92px;        /* di bawah badge/title */
+  z-index: 999;
+  padding: 6px 10px;
+  font: 700 11.5px system-ui, sans-serif;
+  letter-spacing: .2px;
+  color: #102a43;
+  background: #ffd166;                 /* kuning peringatan */
+  border: 1px solid rgba(0,0,0,.1);
+  border-radius: 10px;
+  box-shadow: 0 6px 14px rgba(0,0,0,.22);
+}
+
+/* Mobile tweak */
+@media (max-width: 640px) {
+  #product-chip { top: 52px; right: 8px; padding: 5px 8px; gap: 6px; }
+  #notice-chip { left: 8px; top: 78px; padding: 5px 8px; font-size: 11px; }
+  }
