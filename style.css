@@ -1,0 +1,18 @@
+/* Make sure the map can size itself; 100vh avoids cascading % issues */
+html, body { height: 100%; margin: 0; padding: 0; }
+#map { width: 100%; height: calc(100vh - 56px); background: #f8fafc; }
+
+#topbar {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #e5e7eb;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}
+
+.controls { display: flex; align-items: center; gap: 8px; }
+.controls button { padding: 6px 10px; cursor: pointer; }
+.muted { color: #6b7280; margin-left: 8px; font-weight: normal; }
