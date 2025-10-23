@@ -167,7 +167,7 @@ function buildFramesFromJSON(json, product) {
 
   // LIMIT: STEPS max 8 frames (ambil 8 terbaru)
   if (isForecast && out.length > 8) {
-    out = out.slice(-8);
+    out = out.slice(8);
     console.log(`[steps] truncated to last 8 frames (of ${files.length})`);
   }
 
