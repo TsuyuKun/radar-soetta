@@ -49,10 +49,52 @@ document.getElementById("opacity").addEventListener("input", (e) => {
   overlay.setOpacity(Number(e.target.value));
 });
 
-// Buttons
+
+// SVG icon factory (inline for best rendering)
+function iconSVG(name) {
+  switch (name) {
+    case 'prev':   // |◀ (step back)
+      return `
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M6 5v14" />
+          <path d="M18 6l-9 6 9 6V6z" />
+        </svg>`;
+    case 'next':   // ▶| (step forward)
+      return `
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M18 5v14" />
+          <path d="M6 6l9 6-9 6V6z" />
+        </svg>`;
+    case 'play':   // ▶
+      return `
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M8 5l12 7-12 7V5z" />
+        </svg>`;
+    case 'pause':  // ⏸
+      return `
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M8 5h3v14H8zM13 5h3v14h-3z" />
+        </svg>`;
+    default:
+      return '';
+  }
+}
+
+// Initialize button icons once
 const btnPrev = document.getElementById("btnPrev");
 const btnPlay = document.getElementById("btnPlay");
 const btnNext = document.getElementById("btnNext");
+btnPrev.innerHTML = iconSVG('prev');
+btnPlay.innerHTML = iconSVG('play');
+btnNext.innerHTML = iconSVG('next');
+// Update play button icon consistently
+
+function setPlayUI(isPlaying) {
+  btnPlay.innerHTML = isPlaying ? iconSVG('pause') : iconSVG('play');
+  btnPlay.setAttribute('aria-label', isPlaying ? 'Pause' : 'Play');
+}
+
+// Buttons
 const timeChip = document.getElementById("time-chip");
 btnPrev.addEventListener("click", () => { stop(); prevFrame(); });
 btnNext.addEventListener("click", () => { stop(); nextFrame(); });
@@ -106,8 +148,16 @@ function showFrame(i) {
 
 function nextFrame() { showFrame(frameIndex + 1); }
 function prevFrame() { showFrame(frameIndex - 1); }
-function play() { btnPlay.textContent = "⏸"; timer = setInterval(nextFrame, FRAME_INTERVAL); }
-function stop() { btnPlay.textContent = "▶"; clearInterval(timer); timer = null; }
+function play() {
+  setPlayUI(true);
+  timer = setInterval(nextFrame, FRAME_INTERVAL);
+}
+
+function stop() {
+  setPlayUI(false);
+  clearInterval(timer);
+  timer = null;
+}
 
 loadMetadata().catch(err => {
   console.error("[fetch] metadata error:", err);

@@ -130,14 +130,87 @@ html, body {
 }
 
 /* Mobile tweaks */
+/* ---------- MOBILE OPTIMIZATION ---------- */
 @media (max-width: 640px) {
-  .badge { left: 10px; top: 10px; padding: 8px 10px; grid-template-columns: 36px auto; }
-  .badge .logo img { width: 36px; height: 36px; }
-  .badge .title { font-size: 13px; }
-  .badge .subtitle { font-size: 11px; }
-  .badge .time { font-size: 10px; }
-  #opacity-chip { top: 10px; right: 10px; }
-  .leaflet-top.leaflet-right { right: 10px; }
-  .leaflet-control-zoom { margin-top: 50px; }
-  #control-chip { bottom: 10px; }
+
+  /* General adjustments */
+  body, html { overflow: hidden;}
+
+  /* Badge (smaller, tighter) */
+  .badge {
+    left: 8px;
+    top: 8px;
+    padding: 8px 10px;
+    border-radius: 12px;
+    gap: 3px;
+  }
+  .badge .title {
+    font-size: 12.5px;
+    line-height: 1.1;
+  }
+  .badge .subtitle {
+    font-size: 10.5px;
+  }
+  .badge .time {
+    font-size: 9.5px;
+    padding: 3px 6px;
+    border-radius: 8px;
+  }
+
+  /* Opacity chip smaller, tighter to zoom */
+  #opacity-chip {
+    top: 8px;
+    right: 8px;
+    padding: 5px 8px;
+    font-size: 10.5px;
+    gap: 4px;
+    border-radius: 10px;
+  }
+  #opacity-chip input[type="range"] {
+    width: 70px;
+  }
+
+  /* Zoom buttons smaller, tighter together */
+  .leaflet-control-zoom {
+    margin-top: 50px !important;
+    right: 8px !important;
+  }
+  .leaflet-control-zoom a {
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 15px !important;
+    border-radius: 10px !important;
+  }
+  .leaflet-control-zoom-in {
+    margin-bottom: 4px !important;
+  }
+
+  /* Playback chip: compact and centered */
+  #control-chip {
+    bottom: 20px;
+    left: 5;
+    transform: translateX(-50%);
+    padding: 6px 8px;
+    border-radius: 12px;
+    gap: 6px;
+  }
+  #control-chip button {
+    width: 20px;
+    height: 20px;
+    padding: 0px 1px 0px 1px;
+    border-radius: 10px;
+    stroke: #ffffff;
+    stroke-width: 2px;
+    fill: none;
+    background-color: rgba(00, 184, 169, 0.0);
+  }
+
+  #control-chip button:hover svg {
+    stroke: #00b8a9;  } 
+  /* Keep the map full viewport */
+  #map {
+    height: 100vh;
+    width: 100vw;
+  }
 }
+
