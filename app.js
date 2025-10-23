@@ -25,7 +25,7 @@ let timer = null;
 // ===== MAP =====
 let map;
 try {
-  map = L.map("map", { center: MAP_CENTER, zoom: MAP_ZOOM, minZoom: 4, maxZoom: 12 });
+  map = L.map("map", { center: MAP_CENTER, zoom: MAP_ZOOM, minZoom: 4, maxZoom: 17 });
   map.zoomControl.setPosition("topright");
   console.log("[map] created");
 } catch (e) {
@@ -166,3 +166,41 @@ loadMetadata().catch(err => {
     document.getElementById("badge-time").textContent = "No data";
   }  
 });
+
+// ===== USER LOCATION =====
+if ("geolocation" in navigator) {
+  console.log("[geo] requesting user location...");
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+      console.log(`[geo] user location: ${lat}, ${lon}`);
+
+      // Center the map smoothly to user position
+      map.setView([lat, lon], 10, { animate: true });
+
+      // Add marker
+      const userMarker = L.circleMarker([lat, lon], {
+        radius: 6,
+        fillColor: "#00b8a9",
+        color: "#fff",
+        weight: 2,
+        opacity: 1,
+        fillOpacity: 0.9,
+      }).addTo(map);
+
+      userMarker.bindPopup("<b>Lokasi Anda</b>").openPopup();
+    },
+    (err) => {
+      console.warn("[geo] permission denied or unavailable:", err.message);
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 8000,
+      maximumAge: 0,
+    }
+  );
+} else {
+  console.warn("[geo] geolocation not supported by this browser.");
+}
+
