@@ -13,14 +13,21 @@ const southWest = [overlayBRC[0], Math.min(overlayTLC[1], overlayBRC[1])];
 const northEast = [overlayTLC[0], Math.max(overlayTLC[1], overlayBRC[1])];
 const IMAGE_BOUNDS = [southWest, northEast];
 
-const MAP_CENTER = [-6.171344, 106.646603]; // Jakarta  
+const MAP_CENTER = [-6.171344, 106.646603]; // Jakarta
 const MAP_ZOOM = 10;
-const FRAME_INTERVAL = 700;
+let   FRAME_INTERVAL = 700;
 
+// ===== STATE =====
 let frames = [];
 let frameIndex = 0;
 let overlay = null;
 let timer = null;
+
+// NEW: product state + UI refs (opsional)
+let PRODUCT = "CMAX"; // default
+const productSel = document.getElementById("product");     // <select id="product"> CMAX / STEPS
+const noticeChip = document.getElementById("notice-chip"); // <div id="notice-chip">
+const badgeTime  = document.getElementById("badge-time");  // <div id="badge-time">
 
 // ===== MAP =====
 let map;
@@ -40,15 +47,12 @@ osm.addTo(map);
 console.log("[tiles] OSM layer added");
 
 // Prepare overlay now, URL will be set later
-overlay = L.imageOverlay("", IMAGE_BOUNDS, {
-    opacity: 0.65
-  }).addTo(map);
+overlay = L.imageOverlay("", IMAGE_BOUNDS, { opacity: 0.65 }).addTo(map);
 
 // Opacity control
 document.getElementById("opacity").addEventListener("input", (e) => {
   overlay.setOpacity(Number(e.target.value));
 });
-
 
 // SVG icon factory (inline for best rendering)
 function iconSVG(name) {
@@ -87,7 +91,6 @@ const btnNext = document.getElementById("btnNext");
 btnPrev.innerHTML = iconSVG('prev');
 btnPlay.innerHTML = iconSVG('play');
 btnNext.innerHTML = iconSVG('next');
-// Update play button icon consistently
 
 function setPlayUI(isPlaying) {
   btnPlay.innerHTML = isPlaying ? iconSVG('pause') : iconSVG('play');
@@ -95,54 +98,120 @@ function setPlayUI(isPlaying) {
 }
 
 // Buttons
-const timeChip = document.getElementById("time-chip");
+const timeChip = document.getElementById("time-chip"); // (optional legacy)
 btnPrev.addEventListener("click", () => { stop(); prevFrame(); });
 btnNext.addEventListener("click", () => { stop(); nextFrame(); });
 btnPlay.addEventListener("click", () => { if (timer) stop(); else play(); });
 
+// ===== PRODUCT SELECTOR =====
+if (productSel) {
+  productSel.value = PRODUCT;
+  productSel.addEventListener("change", async () => {
+    PRODUCT = productSel.value;
+    console.log("[product] switch to", PRODUCT);
+    stop();
+    try {
+      await loadMetadata();
+    } catch (e) {
+      console.error("[product] reload failed:", e);
+    }
+  });
+}
+
+// ===== DATA HELPERS (CMAX & STEPS) =====
+function parseLeadMinutes(str) {
+  // ex: "2025-10-24 09:07 WIB (+176min)"
+  const m = (str || "").match(/\(\+(\d+)\s*min\)/i);
+  return m ? parseInt(m[1], 10) : 0;
+}
+
+function buildFramesFromJSON(json, product) {
+  let node = null;
+  if (product === "CMAX") node = json?.CMAX;
+  if (product === "STEPS") node = json?.STEPS;
+  if (!node) return [];
+
+  const files = node?.LastOneHour?.file || [];
+  const utc   = node?.LastOneHour?.timeUTC || [];
+  const local = node?.LastOneHour?.timeLocal || [];
+
+  const isForecast = (product === "STEPS");
+
+  // Build array
+  let out = files.map((path, i) => {
+    const timeUTC  = utc[i]   || "";
+    const timeLoc  = local[i] || "";
+    const leadMin  = isForecast ? parseLeadMinutes(timeLoc || timeUTC) : 0;
+    return {
+      url: IMG_BASE + path,
+      timeUTC: timeUTC,
+      timeLocal: timeLoc,
+      leadMin,
+      isForecast
+    };
+  });
+
+  // Fallback to Latest
+  if (!out.length && node?.Latest?.file) {
+    const timeUTC  = node.Latest.timeUTC  || "";
+    const timeLoc  = node.Latest.timeLocal|| "";
+    const leadMin  = isForecast ? parseLeadMinutes(timeLoc || timeUTC) : 0;
+    out.push({
+      url: IMG_BASE + node.Latest.file,
+      timeUTC: timeUTC,
+      timeLocal: timeLoc,
+      leadMin,
+      isForecast
+    });
+  }
+
+  // LIMIT: STEPS max 8 frames (ambil 8 terbaru)
+  if (isForecast && out.length > 8) {
+    out = out.slice(-8);
+    console.log(`[steps] truncated to last 8 frames (of ${files.length})`);
+  }
+
+  return out;
+}
+
 // ===== DATA LOADING =====
 async function loadMetadata() {
-  console.log("[fetch] metadata", META_URL);
+  console.log("[fetch] metadata", META_URL, "product:", PRODUCT);
   const resp = await fetch(META_URL, { cache: "no-store" });
   if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
   const json = await resp.json();
-  console.log("[fetch] got JSON", json);
 
-  const cmax = json?.CMAX;
-  if (!cmax) throw new Error("No CMAX node in JSON");
-
-  const files = cmax?.LastOneHour?.file || [];
-  const utc   = cmax?.LastOneHour?.timeUTC || [];
-  const local = cmax?.LastOneHour?.timeLocal || [];
-
-  frames = files.map((path, i) => ({
-    url: IMG_BASE + path,
-    timeUTC: utc[i] || "",
-    timeLocal: local[i] || ""
-  }));
-
-  if (frames.length === 0 && cmax.Latest?.file) {
-    frames = [{
-      url: IMG_BASE + cmax.Latest.file,
-      timeUTC: cmax.Latest.timeUTC || "",
-      timeLocal: cmax.Latest.timeLocal || ""
-    }];
-  }
+  frames = buildFramesFromJSON(json, PRODUCT);
   if (frames.length === 0) throw new Error("No frames available");
 
   frameIndex = frames.length - 1;
   showFrame(frameIndex);
 }
 
+// ===== FRAME CONTROL =====
 function showFrame(i) {
   frameIndex = (i + frames.length) % frames.length;
-  const url = frames[frameIndex].url;
-  overlay.setUrl(url);
+  const f = frames[frameIndex];
 
-  // Update top-left badge time
-  const badgeTime = document.getElementById("badge-time");
+  overlay.setUrl(f.url);
+
+  // Update time on badge (preferred)
   if (badgeTime) {
-    badgeTime.textContent = `${frames[frameIndex].timeLocal} | ${frames[frameIndex].timeUTC}`;
+    badgeTime.textContent = `${f.timeLocal} | ${f.timeUTC}`;
+  }
+  // or fallback to older time chip (if present)
+  if (timeChip) {
+    timeChip.textContent = `${f.timeLocal} | ${f.timeUTC}`;
+  }
+
+  // Forecast notice (chip shows only for STEPS)
+  if (noticeChip) {
+    if (f.isForecast) {
+      noticeChip.textContent = f.leadMin > 0 ? `Forecast +${f.leadMin} min` : "Forecast";
+      noticeChip.hidden = false;
+    } else {
+      noticeChip.hidden = true;
+    }
   }
 }
 
@@ -152,19 +221,18 @@ function play() {
   setPlayUI(true);
   timer = setInterval(nextFrame, FRAME_INTERVAL);
 }
-
 function stop() {
   setPlayUI(false);
   clearInterval(timer);
   timer = null;
 }
 
+// ===== INIT =====
 loadMetadata().catch(err => {
   console.error("[fetch] metadata error:", err);
-  document.getElementById("timestamp").textContent = "Failed to load metadata.";
-  if (document.getElementById("badge-time")) {
-    document.getElementById("badge-time").textContent = "No data";
-  }  
+  const ts = document.getElementById("timestamp");
+  if (ts) ts.textContent = "Failed to load metadata.";
+  if (badgeTime) badgeTime.textContent = "No data";
 });
 
 // ===== USER LOCATION =====
@@ -176,10 +244,8 @@ if ("geolocation" in navigator) {
       const lon = pos.coords.longitude;
       console.log(`[geo] user location: ${lat}, ${lon}`);
 
-      // Center the map smoothly to user position
       map.setView([lat, lon], 10, { animate: true });
 
-      // Add marker
       const userMarker = L.circleMarker([lat, lon], {
         radius: 6,
         fillColor: "#00b8a9",
@@ -194,13 +260,8 @@ if ("geolocation" in navigator) {
     (err) => {
       console.warn("[geo] permission denied or unavailable:", err.message);
     },
-    {
-      enableHighAccuracy: true,
-      timeout: 8000,
-      maximumAge: 0,
-    }
+    { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
   );
 } else {
   console.warn("[geo] geolocation not supported by this browser.");
-}
-
+  }
