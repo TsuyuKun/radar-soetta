@@ -3,17 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>BMKG Radar Overlay (Jakarta CMAX)</title>
+  <title>BMKG Radar Soekarno-Hatta</title>
 
   <link rel="stylesheet" href="style.css" />
 
-  <!-- Leaflet CSS -->
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"  />
 </head>
 <body>
-  <!-- Station badge -->
   <div id="station-badge" class="glass badge">
     <div class="meta">
       <div class="title">Radar Soekarno-Hatta (CMAX)</div>
@@ -21,34 +19,28 @@
     </div>
   </div>
 
-  <!-- Playback control chip -->
   <div id="control-chip" class="glass small">
     <button id="btnPrev" aria-label="Previous frame"></button>
     <button id="btnPlay" aria-label="Play"></button>
     <button id="btnNext" aria-label="Next frame"></button>
   </div>
 
-  <!-- Opacity control chip -->
   <div id="opacity-chip" class="glass small">
     Opacity <input type="range" id="opacity" min="0" max="1" step="0.05" value="0.65">
   </div>
 
-  <!-- Product selector chip -->
-<div id="product-chip" class="glass small">
-  Product
-  <select id="product">
-    <option value="CMAX" selected>CMAX</option>
-    <option value="STEPS">CMAX Forecast</option>
-  </select>
-</div>
+  <div id="product-chip" class="glass small">
+    Product
+    <select id="product">
+      <option value="CMAX" selected>CMAX</option>
+      <option value="STEPS">CMAX Forecast</option>
+    </select>
+  </div>
 
-<!-- Forecast notice chip -->
-<div id="notice-chip" class="glass small" hidden>Forecast</div>
+  <div id="notice-chip" class="glass small" hidden>Forecast</div>
 
-  <!-- Map -->
   <div id="map"></div>
 
-  <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="app.js"></script>

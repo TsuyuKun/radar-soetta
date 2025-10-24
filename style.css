@@ -8,8 +8,6 @@ html, body {
   height: 100%;
 }
 
-/* Base glass style */
-/* Base glass style */
 .glass {
   backdrop-filter: blur(8px);
   background: rgba(23, 27, 33, 0.70);
@@ -19,7 +17,6 @@ html, body {
   border: 1px solid rgba(255,255,255,.12);
 }
 
-/* Compact badge */
 .badge {
   position: absolute;
   top: 16px;
@@ -45,7 +42,6 @@ html, body {
   margin-left: 4px;
 } 
 
-/* Timestamp pill inside the badge */
 .badge .time {
   width: fit-content;
   margin-top: 2px;
@@ -59,7 +55,6 @@ html, body {
   border-radius: 9px;
 }
 
-/* Opacity chip (unchanged, keep your existing rules) */
 #opacity-chip {
   position: absolute;
   top: 16px;
@@ -81,8 +76,6 @@ html, body {
   accent-color: #00b8a9;
 }
 
-/* Playback chip (bottom center) – keep your current styles;
-   these are just slight tweaks for consistency */
 #control-chip {
   position: absolute;
   bottom: 16px;
@@ -107,7 +100,7 @@ html, body {
 
 #product-chip {
   position: absolute;
-  top: 60px;         /* below opacity chip */
+  top: 60px;
   right: 16px;
   z-index: 999;
   display: flex;
@@ -145,11 +138,10 @@ html, body {
   font-weight: 500;
 }
 
-/* Forecast notice chip */
 #notice-chip {
   position: absolute;
   left: 16px;
-  top: 92px; /* under badge */
+  top: 92px;
   z-index: 999;
   padding: 6px 10px;
   font: 700 11.5px system-ui, sans-serif;
@@ -161,12 +153,11 @@ html, body {
   box-shadow: 0 6px 14px rgba(0,0,0,.22);
 }
 
-/* --- Leaflet Zoom Button Redesign --- */
 .leaflet-control-zoom {
   position: absolute;
-  top: 100px;         /* below opacity chip */
+  top: 100px;      
   right: 16px;
-  margin-top: 10px !important;  /* small gap */
+  margin-top: 10px !important;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
@@ -192,14 +183,10 @@ html, body {
   margin-bottom: 6px !important;
 }
 
-/* Mobile tweaks */
-/* ---------- MOBILE OPTIMIZATION ---------- */
 @media (max-width: 640px) {
 
-  /* General adjustments */
   body, html { overflow: hidden;}
 
-  /* Badge (smaller, tighter) */
   .badge {
     left: 8px;
     top: 8px;
@@ -222,12 +209,11 @@ html, body {
 
   #notice-chip {
     left: 10px;
-    top: 150px; /* under badge */
+    top: 142px;
   }
 
-  /* Opacity chip smaller, tighter to zoom */
   #opacity-chip {
-    top: 105px;
+    top: 102px;
     left: 10px;
     padding: 5px 8px;
     font-size: 10.5px;
@@ -241,16 +227,16 @@ html, body {
   }
 
   #product-chip {
-    top: 65px;         /* below opacity chip */
+    top: 65px;     
     left: 10px;
     width: fit-content;
     height: fit-content;
     padding: 5px 8px;
     font-size: 10.5px;
   }
-  /* Zoom buttons smaller, tighter together */
+
   .leaflet-control-zoom {
-    top : 0px;         /* below opacity chip */
+    top : 0px;     
     margin-top: 7px !important;
     right: 8px !important;
   }
@@ -264,7 +250,6 @@ html, body {
     margin-bottom: 4px !important;
   }
 
-  /* Playback chip: compact and centered */
   #control-chip {
     bottom: 20px;
     left: 5;
@@ -286,7 +271,7 @@ html, body {
 
   #control-chip button:hover svg {
     stroke: #00b8a9;  } 
-  /* Keep the map full viewport */
+
   #map {
     height: 100vh;
     width: 100vw;
