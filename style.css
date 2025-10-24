@@ -153,6 +153,44 @@ html, body {
   box-shadow: 0 6px 14px rgba(0,0,0,.22);
 }
 
+.locate-chip {
+  position: absolute;
+  right: 26px;
+  top: 186px;
+  z-index: 999;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: rgba(23, 27, 33, 0.7) !important;
+  border: 1px solid rgba(255,255,255,0.12);  
+  box-shadow: 0 6px 14px rgba(0,0,0,.25);
+  backdrop-filter: blur(6px);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background .2s ease, transform .1s ease;
+}
+
+.locate-chip:hover {  
+  background: #00b8a9 !important;
+  transform: translateY(-1px);
+}
+
+.locate-chip svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2px;
+  transition: fill 0.3s ease;
+}
+
+.locate-chip.locating svg {
+  fill: #00b8a9;
+}
+
 .leaflet-control-zoom {
   position: absolute;
   top: 100px;      
@@ -161,7 +199,6 @@ html, body {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  right: 16px !important;
   left: auto !important;
 }
 .leaflet-control-zoom a {
@@ -172,7 +209,9 @@ html, body {
   box-shadow: 0 6px 14px rgba(0,0,0,.25);
   border-radius: 10px !important;
   font-weight: 700;
-  font-size: 17px;
+  font-size: 17px;  
+  width: 30px;
+  height: 30px;
   transition: background .15s ease, transform .1s ease;
 }
 .leaflet-control-zoom a:hover {
@@ -232,7 +271,8 @@ html, body {
     width: fit-content;
     height: fit-content;
     padding: 5px 8px;
-    font-size: 10.5px;
+    font-size: 10.5px;    
+    border-radius: 10px;
   }
 
   .leaflet-control-zoom {
@@ -271,6 +311,11 @@ html, body {
 
   #control-chip button:hover svg {
     stroke: #00b8a9;  } 
+
+  .locate-chip {
+    right: 18px;
+    top: 80px;
+  }
 
   #map {
     height: 100vh;

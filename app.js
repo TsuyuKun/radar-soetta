@@ -81,7 +81,9 @@ const noticeChip = document.getElementById("notice-chip");
 const btnPrev = document.getElementById("btnPrev");
 const btnPlay = document.getElementById("btnPlay");
 const btnNext = document.getElementById("btnNext");
+const timeChip = document.getElementById("time-chip");
 const badgeTime = document.getElementById("badge-time");
+const locateBtn = document.getElementById("btnLocate");
 btnPrev.innerHTML = iconSVG('prev');
 btnPlay.innerHTML = iconSVG('play');
 btnNext.innerHTML = iconSVG('next');
@@ -91,7 +93,6 @@ function setPlayUI(isPlaying) {
   btnPlay.setAttribute('aria-label', isPlaying ? 'Pause' : 'Play');
 }
 
-const timeChip = document.getElementById("time-chip");
 btnPrev.addEventListener("click", () => { stop(); prevFrame(); });
 btnNext.addEventListener("click", () => { stop(); nextFrame(); });
 btnPlay.addEventListener("click", () => { if (timer) stop(); else play(); });
@@ -201,37 +202,38 @@ loadMetadata().catch(err => {
 });
 
 // ===== USER LOCATION =====
-if ("geolocation" in navigator) {
-  console.log("[geo] requesting user location...");
-  navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      const lat = pos.coords.latitude;
-      const lon = pos.coords.longitude;
-      console.log(`[geo] user location: ${lat}, ${lon}`);
-
-      map.setView([lat, lon], 10, { animate: true });
-
-      const userMarker = L.circleMarker([lat, lon], {
-        radius: 6,
-        fillColor: "#00b8a9",
-        color: "#fff",
-        weight: 2,
-        opacity: 1,
-        fillOpacity: 0.9,
-      }).addTo(map);
-
-      userMarker.bindPopup("<b>Lokasi Anda</b>").openPopup();
-    },
-    (err) => {
-      console.warn("[geo] permission denied or unavailable:", err.message);
-    },
-    {
-      enableHighAccuracy: true,
-      timeout: 8000,
-      maximumAge: 0,
+if (locateBtn) {
+  locateBtn.addEventListener("click", () => {
+    if (!("geolocation" in navigator)) {
+      alert("Geolocation not supported by your browser.");
+      return;
     }
-  );
-} else {
-  console.warn("[geo] geolocation not supported by this browser.");
+
+    locateBtn.classList.add("locating");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude: lat, longitude: lon } = pos.coords;
+        map.setView([lat, lon], 11, { animate: true });
+
+        const userMarker = L.circleMarker([lat, lon], {
+          radius: 7,
+          fillColor: "#00b8a9",
+          color: "#fff",
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.9
+        }).addTo(map);
+        userMarker.bindPopup("<b>Lokasi Anda</b>").openPopup();
+
+        locateBtn.classList.remove("locating");
+      },
+      (err) => {
+        console.warn(`[geo] error: ${err.message}`);
+        locateBtn.classList.remove("locating");
+        alert("Unable to get your location. Please allow location access.");
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  });
 }
 
